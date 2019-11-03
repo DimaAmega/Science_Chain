@@ -44,9 +44,13 @@ def getMultiplicators(phi_s,t_end,L,K,G,N):
 ######################
 ##  MAIN
 ######################
-# X = IC(0.1,0.97)
-# phi_s = createPhi_s(X,0.1,0.97)
-# res  = getMultiplicators(phi_s,float(X[1]),0.1,0.21,0.97,6)
+# L = 0.45
+# K = 0.42
+# G = 0.97
+# N = 6
+# X = IC(L,G)
+# phi_s = createPhi_s(X,L,G)
+# res  = getMultiplicators(phi_s,float(X[1]),L,K,G,N)
 # print(res)
 
 

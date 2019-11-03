@@ -23,6 +23,9 @@ def calculateLineData(L,G,N,n_thread):
     h_k = 1.5
     K_start = Data[0][0] - h_k
     K_end = Data[-1][-1] + h_k
+    Right_Board = 20
+    if K_end < Right_Board:
+        Right_Board = K_end
     # print("Запустили поток L - {} Range K [{},{}]".format(L,K_start,K_end))
     l1 = EVV[-1]
     l2 = EVV[0]
@@ -38,7 +41,7 @@ def calculateLineData(L,G,N,n_thread):
     Netx = Prev
     step = getStep(k_i,K_start,K_end,l1,l2,G,L) 
     k_i += step
-    while k_i < K_end:
+    while k_i < Right_Board:
         multiplicators = getMul(phi_s,t_period,L,k_i,G,N)
         Next = inCircle(multiplicators)
         if Next*Prev<0:
@@ -53,7 +56,7 @@ def calculateLineData(L,G,N,n_thread):
             if  Count_iterations % N_iterations == 0:
                 lock.acquire()
                 down(n_thread)
-                sys.stdout.write("thred - {}; L - {}; Progress - {}/100".format(n_thread,round(L,3),mt.floor((k_i - K_start)/(K_end - K_start)*100)))
+                sys.stdout.write("thred - {}; L - {}; Progress - {}/100".format(n_thread,round(L,3),mt.floor((k_i - K_start)/(Right_Board - K_start)*100)))
                 up(n_thread)
                 lock.release()
         Prev = Next
@@ -62,7 +65,7 @@ def calculateLineData(L,G,N,n_thread):
         Count_iterations+=1
     lock.acquire()
     down(n_thread)
-    sys.stdout.write("thred - {}; L - {}; Progress - 100/100".format(n_thread,L,mt.floor((k_i - K_start)/(K_end - K_start)*100)))
+    sys.stdout.write("thred - {}; L - {}; Progress - 100/100".format(n_thread,round(L,3)))
     up(n_thread)
     lock.release()
     return {"Lambda":L,"Range_K":[K_start,K_end],"data":DATA}    
@@ -70,14 +73,13 @@ def calculateLineData(L,G,N,n_thread):
 #######################################
 ###
 #######################################
+
 def init(l):
     global lock
     lock = l
 
 if __name__ == '__main__':
     N_CPU = mpproc.cpu_count()
-    # N_CPU = 4
-    print("NCPU",N_CPU)
     data = []
     tasks = []
     l = Lock()
@@ -85,9 +87,9 @@ if __name__ == '__main__':
     with Pool(processes=N_CPU,initializer=init, initargs=(l,)) as pool:
         num_proc = 1
         G = 0.97
-        N = 7
+        N = 6
         L_s = 0.1
-        L_e = 0.8
+        L_e = 0.85
         h_L = 0.01
         L_arr = np.arange(L_s,L_e,h_L)
         for L_i in L_arr:

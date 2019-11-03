@@ -9,7 +9,7 @@ import mpmath as mp
 def up(n=1):
     # My terminal breaks if we don't flush after the escape-code
     for i in range(n):
-        sys.stdout.write("\x1b[1A")
+        sys.stdout.write('\x1b[1A')
     sys.stdout.flush()
 def down(n=1):
     # I could use '\x1b[1B' here, but newline is faster and easier
@@ -52,7 +52,7 @@ def getStep(k_i,K_s,K_e,eiv_1,eiv_2,G,L):
     dola_k = (k_i-K_s)/(K_e-K_s)
     lambda_i = eiv_2*(1-dola_k)+ eiv_1*dola_k
     res = getRange(lambda_i,G,L)
-    return res[1]-res[0]
+    return (res[1]-res[0])/2
 
 ######################
 ##      VARIABLES

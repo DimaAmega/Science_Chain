@@ -5,6 +5,8 @@ import numpy as np
 import sys
 import pickle
 from LineDataKRangeTools import *
+from colorama import init
+init()
 
 def calculateLineData(L,G,N,n_thread):
     DATA = []
@@ -74,6 +76,8 @@ def init(l):
 
 if __name__ == '__main__':
     N_CPU = mpproc.cpu_count()
+    # N_CPU = 4
+    print("NCPU",N_CPU)
     data = []
     tasks = []
     l = Lock()
@@ -81,9 +85,9 @@ if __name__ == '__main__':
     with Pool(processes=N_CPU,initializer=init, initargs=(l,)) as pool:
         num_proc = 1
         G = 0.97
-        N = 6
-        L_s = 0.8
-        L_e = 0.81
+        N = 7
+        L_s = 0.1
+        L_e = 0.8
         h_L = 0.01
         L_arr = np.arange(L_s,L_e,h_L)
         for L_i in L_arr:

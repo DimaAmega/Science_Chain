@@ -9,7 +9,7 @@ import mpmath as mp
 def up(n=1):
     # My terminal breaks if we don't flush after the escape-code
     for i in range(n):
-        sys.stdout.write('\x1b[1A')
+        sys.stdout.write("\x1b[1A")
     sys.stdout.flush()
 def down(n=1):
     # I could use '\x1b[1B' here, but newline is faster and easier

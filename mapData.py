@@ -8,10 +8,19 @@ from LineDataKRangeTools import *
 from colorama import init
 init()
 
+
+def printMessage(n_thread,message):
+    lock.acquire()
+    down(n_thread)
+    sys.stdout.write("\r \033[K")
+    sys.stdout.write(message)
+    up(n_thread)
+    lock.release()
+
 def calculateLineData(L,G,N,n_thread):
     DATA = []
     Count_iterations = 0
-    N_iterations = 1
+    N_iterations = 3
     ######################
     ##      ОЦЕНКИ
     ######################
@@ -48,26 +57,23 @@ def calculateLineData(L,G,N,n_thread):
             if Prev>0:
                 res = binarySearch([k_i-step,k_i],0,phi_s,t_period,L,G,N)
                 DATA.append({"type":"Lboard","point":res})
+                printMessage(n_thread,"thred - {}; L - {}; Lboard {}".format(n_thread,round(L,3),res))
             else:
                 res = binarySearch([k_i-step,k_i],1,phi_s,t_period,L,G,N)
                 DATA.append({"type":"Rboard","point":res})
+                printMessage(n_thread,"thred - {}; L - {}; Rboard {}".format(n_thread,round(L,3),res))
+
         else:
             DATA.append({"type":"point","point":k_i,"multiplicators":multiplicators})
             if  Count_iterations % N_iterations == 0:
-                lock.acquire()
-                down(n_thread)
-                sys.stdout.write("thred - {}; L - {}; Progress - {}/100".format(n_thread,round(L,3),mt.floor((k_i - K_start)/(Right_Board - K_start)*100)))
-                up(n_thread)
-                lock.release()
+                printMessage(n_thread,"thred - {}; L - {}; Progress - {}/100 |".format(n_thread,round(L,3),mt.floor((k_i - K_start)/(Right_Board - K_start)*100)))
+            else:
+                printMessage(n_thread,"thred - {}; L - {}; Point - {}; Range [{},{}]".format(n_thread,round(L,3),k_i,K_start,Right_Board))
         Prev = Next
         step = getStep(k_i,K_start,K_end,l1,l2,G,L)
         k_i += step
         Count_iterations+=1
-    lock.acquire()
-    down(n_thread)
-    sys.stdout.write("thred - {}; L - {}; Progress - 100/100".format(n_thread,round(L,3)))
-    up(n_thread)
-    lock.release()
+    printMessage(n_thread,"thred - {}; L - {}; Progress - 100/100".format(n_thread,round(L,3)))
     return {"Lambda":L,"Range_K":[K_start,K_end],"data":DATA}    
 
 #######################################
@@ -88,9 +94,10 @@ if __name__ == '__main__':
         num_proc = 1
         G = 0.97
         N = 6
-        L_s = 0.1
-        L_e = 0.85
+        L_s = 0.5
+        L_e = 0.85       
         h_L = 0.01
+
         L_arr = np.arange(L_s,L_e,h_L)
         for L_i in L_arr:
             tasks.append(pool.apply_async(calculateLineData,args = (L_i,G,N,num_proc),error_callback = lambda e: print(e)))

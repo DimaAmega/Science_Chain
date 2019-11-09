@@ -32,7 +32,7 @@ def calculateLineData(L,G,N,n_thread):
     h_k = 1.5
     K_start = Data[0][0] - h_k
     K_end = Data[-1][-1] + h_k
-    Right_Board = 20
+    Right_Board = 40
     if K_end < Right_Board:
         Right_Board = K_end
     # print("Запустили поток L - {} Range K [{},{}]".format(L,K_start,K_end))
@@ -93,9 +93,9 @@ if __name__ == '__main__':
     with Pool(processes=N_CPU,initializer=init, initargs=(l,)) as pool:
         num_proc = 1
         G = 0.97
-        N = 6
-        L_s = 0.5
-        L_e = 0.85       
+        N = 14
+        L_s = 0.1
+        L_e = 0.5      
         h_L = 0.01
 
         L_arr = np.arange(L_s,L_e,h_L)
@@ -108,6 +108,6 @@ if __name__ == '__main__':
         pool.close()
         pool.join()
         down(num_proc)
-        with open('Count-{}.pickle'.format(N), 'wb') as f:
+        with open('Count-{} {} {}.pickle'.format(N,L_s,L_e), 'wb') as f:
             pickle.dump(data, f)
         

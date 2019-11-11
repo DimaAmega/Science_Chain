@@ -37,7 +37,6 @@ def newtonMethod(VF,X_start):
         Y = getYacobyMatrix(VF,X)
         Y_1 = Y**-1
         X = X-(Y_1*VF(X))
-        A = VF(X)
     return X
 def createVectorFunction(f1,f2):
 	return lambda Xi : mp.matrix([f1(Xi),f2(Xi)])
@@ -64,13 +63,13 @@ def findFirstMaximum(q,RS,start_index):
             i+=1
 def getApproximateX0(L,G):
     RS = createRsideOnePendulumsEquation(L,G)
-    q = odeint(RS,[0,9],t,hmax=h_iter)
-    ind_first_max , q_1 = findFirstMaximum(q,RS,getIndexOfTime(t_end*0.7))
+    q = odeint(RS,[0,6],t,hmax=h_iter)
+    ind_first_max , q_1 = findFirstMaximum(q,RS,getIndexOfTime(t_end*0.5))
     ind_second_max , q_2 = findFirstMaximum(q,RS,ind_first_max)
     period_time = (ind_second_max - ind_first_max)*h_iter
     maximum = (q_2[1] + q_1[1])/2
     return mp.matrix([maximum,period_time])
-eps = 1e-15
+eps = 1e-14
 ####################################
 ## IMPORT FUNCTION
 ####################################

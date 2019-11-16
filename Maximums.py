@@ -29,7 +29,7 @@ def CreateRS(q,t,N,L,G,K):
 def createQ0(N):
     q0 = np.zeros(2*N)
     for i in range(2*N):
-        q0[i] = 3 + 3*rndm.random()
+        q0[i] = 6 + 3*rndm.random()
     return q0
 def findMax(q,eps=1e-4):
     res = []
@@ -69,8 +69,8 @@ if __name__ == '__main__':
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.64
-    K_e = 0.759
+    K_s = 0.732
+    K_e = 0.76
     h_K = 0.001
     N,L,G = 6,0.3,0.97
     K_arr = np.arange(K_s,K_e,h_K)

@@ -48,7 +48,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def CountMaximums(N,L,G,K_i,t_end=400,proc=0.9,h=1e-3):
+def CountMaximums(N,L,G,K_i,t_end=3000,proc=0.9,h=1e-3):
     res = []
     s_t_index = round(t_end*proc/h)
     q_0 = createQ0(N)
@@ -66,13 +66,10 @@ def CountMaximums(N,L,G,K_i,t_end=400,proc=0.9,h=1e-3):
 
 if __name__ == '__main__':
     N_CPU = cpu_count()
-    # N_CPU = 4
     data = []
     tasks = []
     l = Lock()
-    G = 0.97
-    N = 6
-    K_s = 0.6
+    K_s = 0.64
     K_e = 0.759
     h_K = 0.001
     N,L,G = 6,0.3,0.97

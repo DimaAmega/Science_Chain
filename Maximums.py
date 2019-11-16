@@ -6,11 +6,9 @@ import sys
 import pickle
 import math as mt
 import random as rndm
-import plotly.graph_objs as go
 from multiprocessing import Pool
-
-from _plotly_future_ import v4_subplots
-import chart_studio.plotly as py
+from colorama import init
+init()
 
 def init(l):
     global lock

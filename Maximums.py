@@ -28,7 +28,7 @@ def CreateRS(q,t,N,L,G,K):
 def createQ0(N):
     q0 = np.zeros(2*N)
     for i in range(2*N):
-        q0[i] = 7*rndm.random()
+        q0[i] = 4+8*rndm.random()
     return q0
 def findMax(q,eps=1e-4):
     res = []
@@ -47,7 +47,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def CountMaximums(N,L,G,K_i,t_end=200,proc=0.9,h=1e-3):
+def CountMaximums(N,L,G,K_i,t_end=2000,proc=0.9,h=1e-3):
     res = []
     s_t_index = round(t_end*proc/h)
     q_0 = createQ0(N)
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     G = 0.97
     N = 6
     K_s = 0.6
-    K_e = 10.8 
+    K_e = 1
     # K_s = 0.6
     # K_e = 0.61
     h_K = 0.001
@@ -93,5 +93,5 @@ if __name__ == '__main__':
             sys.stdout.flush()
         pool.close()
         pool.join()
-        with open('MaxData-{}.pickle'.format(L), 'wb') as f:
+        with open('NEWMaxData-{}.pickle'.format(L), 'wb') as f:
             pickle.dump(data, f)

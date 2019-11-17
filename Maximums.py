@@ -48,7 +48,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def CountMaximums(N,L,G,K_i,t_end=3000,proc=0.9,h=1e-3):
+def CountMaximums(N,L,G,K_i,t_end=2500,proc=0.9,h=1e-3):
     res = []
     s_t_index = round(t_end*proc/h)
     q_0 = createQ0(N)
@@ -69,9 +69,9 @@ if __name__ == '__main__':
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.732
-    K_e = 0.76
-    h_K = 0.001
+    K_s = 0.731
+    K_e = 0.744
+    h_K = 0.001/3
     N,L,G = 6,0.3,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     print("FIND MAXIMUMS L - ", L)
@@ -89,5 +89,5 @@ if __name__ == '__main__':
             sys.stdout.flush()
         pool.close()
         pool.join()
-        with open('MData-{}.pickle'.format(L), 'wb') as f:
+        with open('Data-{}.pickle'.format(L), 'wb') as f:
             pickle.dump(data, f)

@@ -62,7 +62,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def calcLine(N,L,G,K_arr,t_end=1000,h=1e-3):
+def calcLine(N,L,G,K_arr,t_end=500,h=1e-3):
     res = []
     t = np.arange(0,t_end,h)
     q = odeint(CreateRS,createQ0(N),t,args=(N,L,G,K_arr[0]),hmax=h)
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     l = Lock()
     K_s = 0.731
     K_e = 0.745
-    h_K = 0.001
+    h_K = 0.0001
     N,L,G = 6,0.3,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)

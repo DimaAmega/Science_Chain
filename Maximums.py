@@ -8,8 +8,8 @@ import pickle
 import math as mt
 import random as rndm
 from multiprocessing import Pool
-from colorama import init
-init()
+from colorama import init as initialization
+initialization()
 
 def init(l):
     global lock
@@ -48,7 +48,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def CountMaximums(N,L,G,K_i,t_end=3500,proc=0.95,h=1e-3):
+def CountMaximums(N,L,G,K_i,t_end=5000,proc=0.95,h=1e-3):
     res = []
     s_t_index = round(t_end*proc/h)
     q_0 = createQ0(N)
@@ -69,13 +69,13 @@ if __name__ == '__main__':
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.731
-    K_e = 0.745
-    h_K = 0.001/3
+    K_s = 0.6
+    K_e = 1
+    h_K = 0.001
     N,L,G = 6,0.3,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     print("FIND MAXIMUMS L - ", L)
-    with Pool(processes=N_CPU,initializer=init, initargs=(l,)) as pool:
+    with Pool(processes=N_CPU) as pool:
         num_proc = 1
         for K_i in K_arr:
             tasks.append(pool.apply_async(CountMaximums,args = (N,L,G,K_i),error_callback = lambda e: print(e)))
@@ -89,5 +89,5 @@ if __name__ == '__main__':
             sys.stdout.flush()
         pool.close()
         pool.join()
-        with open('Data-{}.pickle'.format(L), 'wb') as f:
+        with open('DataFull7Kscore-{}.pickle'.format(L), 'wb') as f:
             pickle.dump(data, f)

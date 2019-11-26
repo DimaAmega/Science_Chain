@@ -85,8 +85,8 @@ def init(l):
     lock = l
 
 if __name__ == '__main__':
-    N_CPU = mpproc.cpu_count()
-    # N_CPU = 1
+    # N_CPU = mpproc.cpu_count()
+    N_CPU = 1
     data = []
     tasks = []
     l = Lock()
@@ -95,13 +95,12 @@ if __name__ == '__main__':
         num_proc = 1
         G = 0.97
         N = 6
-        L_s = 0.85
-        L_e = 0.91     
-        h_L = 0.01
+        L_s = 0.93
+        L_e = 0.85   
+        h_L = -0.01
 
         L_arr = np.arange(L_s,L_e,h_L)
         for L_i in L_arr:
-            print(L_i)
             tasks.append(pool.apply_async(calculateLineData,args = (L_i,G,N,num_proc),error_callback = lambda e: print(e)))
             num_proc+=1
         for task in tasks:

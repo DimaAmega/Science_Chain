@@ -10,7 +10,7 @@ mp.mp.pretty = True
 #######################
 ##    GLOBAL VAR
 #######################
-t_end = 100
+t_end = 500
 h_iter = 0.001
 deg = 4
 t = np.arange(0,t_end,h_iter)
@@ -37,6 +37,8 @@ def newtonMethod(VF,X_start):
         Y = getYacobyMatrix(VF,X)
         Y_1 = Y**-1
         X = X-(Y_1*VF(X))
+        print("point",X)
+        print("Touch",mp.norm(Y_1*VF(X),2))
     return X
 def createVectorFunction(f1,f2):
 	return lambda Xi : mp.matrix([f1(Xi),f2(Xi)])
@@ -45,7 +47,7 @@ def getIndexOfTime(time):
 def createRsideOnePendulumsEquation(L,G):
     return lambda q,t: np.array( [ q[1] , G-np.sin(q[0]) -L*q[1] ] )
 def createRsideOnePendulumsEquationMPMATH(L,G):
-    return lambda t,q: [ q[1] , G-mp.sin(q[0]) -L*q[1] ] 
+    return lambda t,q: mp.matrix([ q[1] , G-mp.sin(q[0]) -L*q[1] ] )
 def getSecDerOfRS(Rs):
     return lambda q:Rs(q,None)[1] 
 def findFirstMaximum(q,RS,start_index):
@@ -85,6 +87,7 @@ def getInitCondition(L,G):
         q = mp.odefun(rside,0,q0,tol=h_iter,degree=deg,method="taylor")
         return q(Xi[1])[1] -Xi[0]
     X0_approx = getApproximateX0(L,G)
+    print(X0_approx)
     VF = createVectorFunction(f1,f2)
     X = newtonMethod(VF,X0_approx)
     return X

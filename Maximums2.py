@@ -11,7 +11,6 @@ from multiprocessing import Pool
 from colorama import init
 init()
 
-
 def chunkIt(seq, num):
     avg = len(seq) / float(num)
     out = []
@@ -62,7 +61,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def calcLine(N,L,G,K_arr,t_end=2000,h=1e-3):
+def calcLine(N,L,G,K_arr,t_end=3000,h=1e-3):
     res = []
     t = np.arange(0,t_end,h)
     q = odeint(CreateRS,createQ0(N),t,args=(N,L,G,K_arr[0]),hmax=h)
@@ -83,7 +82,10 @@ def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.9):
     q = odeint(CreateRS, q_0,t,args=(N,L,G,K_i),hmax=h)
     for i in range(N):
         res.append(findMax(q[s_t_index:-1][:,2*i+1]))
-    return {"K":K_i,"max":res,"q0":q[-1]}
+    q0 = q[-1].copy()
+    for i in range(N):
+        q0[2*i] = q0[2*i]%2*mt.pi
+    return {"K":K_i,"max":res,"q0":q0}
 ###################
 ##   VARIABLES
 ###################
@@ -92,19 +94,18 @@ def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.9):
 
 
 if __name__ == '__main__':
-    N_CPU = cpu_count()
+    N_CPU = 1 # cpu_count()
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.731
-    K_e = 0.745
-    h_K = 0.0001
+    K_s = 0.73
+    K_e = 0.755
+    h_K = 0.001
     N,L,G = 6,0.3,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
     for i in Multi_K_arr:
         print(i)
-
     print("FIND MAXIMUMS L - ", L)
     with Pool(processes=N_CPU,initializer=init, initargs=(l,)) as pool:
         num_proc = 1
@@ -117,5 +118,5 @@ if __name__ == '__main__':
             data+=res
         pool.close()
         pool.join()
-        with open('Data-{}.pickle'.format(L), 'wb') as f:
+        with open('DataM2-{}.pickle'.format(L), 'wb') as f:
             pickle.dump(data, f)

@@ -11,6 +11,26 @@ from multiprocessing import Pool
 from colorama import init
 init()
 
+
+def printMessage(n_thread,message):
+    lock.acquire()
+    down(n_thread)
+    sys.stdout.write("\r \033[K")
+    sys.stdout.write(message)
+    up(n_thread)
+    lock.release()
+def up(n=1):
+    # My terminal breaks if we don't flush after the escape-code
+    for i in range(n):
+        sys.stdout.write('\x1b[1A')
+    sys.stdout.flush()
+def down(n=1):
+    # I could use '\x1b[1B' here, but newline is faster and easier
+    for i in range(n):
+        sys.stdout.write('\n')
+    sys.stdout.flush()
+
+
 def chunkIt(seq, num):
     avg = len(seq) / float(num)
     out = []
@@ -19,7 +39,7 @@ def chunkIt(seq, num):
         out.append(seq[int(last):int(last + avg)])
         last += avg
     return out
-def init(l):
+def init2(l):
     global lock
     lock = l
 def CreateRS(q,t,N,L,G,K):
@@ -42,7 +62,7 @@ def createQ0(N):
 def createPretubrations(N):
     q0 = np.zeros(2*N)
     for i in range(2*N):
-        q0[i] = 0.5 + 0.5*rndm.random()
+        q0[i] = 0.1 + 0.2*rndm.random()
     return q0
 def findMax(q,eps=1e-4):
     res = []
@@ -61,7 +81,8 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def calcLine(N,L,G,K_arr,t_end=3000,h=1e-3):
+def calcLine(N,L,G,K_arr,num_proc,t_end=3500,h=1e-3):
+    rndm.seed(4)
     res = []
     t = np.arange(0,t_end,h)
     q = odeint(CreateRS,createQ0(N),t,args=(N,L,G,K_arr[0]),hmax=h)
@@ -70,13 +91,11 @@ def calcLine(N,L,G,K_arr,t_end=3000,h=1e-3):
         res.append(CountMaximums(N,L,G,K_i,q_last + createPretubrations(N),t,h))
         q_last = res[-1]["q0"]
         ####  PRINT SOME INFO  ####
-        sys.stdout.write("\r \033[K")
-        sys.stdout.write("Progress of some Thread {} of 100".format(round((K_i-K_arr[0])/(K_arr[-1] -K_arr[0])*100,2)))
-        sys.stdout.flush()
+        printMessage(num_proc,"Progress of {} Thread {} of 100".format(num_proc,round((K_i-K_arr[0])/(K_arr[-1] -K_arr[0])*100,2)))
     return res
 
 
-def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.9):
+def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.95):
     res = []
     s_t_index = int(round((t[-1]+h)*proc/h))
     q = odeint(CreateRS, q_0,t,args=(N,L,G,K_i),hmax=h)
@@ -87,30 +106,25 @@ def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.9):
         q0[2*i] = q0[2*i]%2*mt.pi
     return {"K":K_i,"max":res,"q0":q0}
 ###################
-##   VARIABLES
+##     MAIN
 ###################
-# N,L,G,K_i = 6,0.3,0.97,0.74
-# CountMaximums(N,L,G,K_i,t_end=200,proc=0.9,h=1e-3)
-
 
 if __name__ == '__main__':
-    N_CPU = 1 # cpu_count()
+    N_CPU = 2 # cpu_count()
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.73
-    K_e = 0.755
+    K_s = 0.04
+    K_e = 2.5
     h_K = 0.001
-    N,L,G = 6,0.3,0.97
+    N,L,G = 6,0.8,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
-    for i in Multi_K_arr:
-        print(i)
     print("FIND MAXIMUMS L - ", L)
-    with Pool(processes=N_CPU,initializer=init, initargs=(l,)) as pool:
+    with Pool(processes=N_CPU,initializer=init2, initargs=(l,)) as pool:
         num_proc = 1
         for K_i_arr in Multi_K_arr:
-            tasks.append(pool.apply_async(calcLine,args = (N,L,G,K_i_arr),error_callback = lambda e: print(e)))
+            tasks.append(pool.apply_async(calcLine,args = (N,L,G,K_i_arr,num_proc),error_callback = lambda e: print(e)))
             num_proc+=1
         for task in tasks:
             task.wait()

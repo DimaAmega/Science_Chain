@@ -46,7 +46,7 @@ def init2(l):
     global lock
     lock = l
 
-# @jit
+@jit
 def CreateRS(q,t,N,L,G,K):
     X = np.zeros(2*N)
     X[0] = q[1]

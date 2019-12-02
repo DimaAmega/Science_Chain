@@ -81,7 +81,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def calcLine(N,L,G,K_arr,num_proc,t_end=3500,h=1e-3):
+def calcLine(N,L,G,K_arr,num_proc,t_end=3000,h=1e-3):
     rndm.seed(4)
     res = []
     t = np.arange(0,t_end,h)
@@ -110,7 +110,7 @@ def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.95):
 ###################
 
 if __name__ == '__main__':
-    N_CPU = 2 # cpu_count()
+    N_CPU = cpu_count()
     data = []
     tasks = []
     l = Lock()
@@ -120,6 +120,8 @@ if __name__ == '__main__':
     N,L,G = 6,0.8,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
+    for K_i in Multi_K_arr:
+        print(K_i)
     print("FIND MAXIMUMS L - ", L)
     with Pool(processes=N_CPU,initializer=init2, initargs=(l,)) as pool:
         num_proc = 1

@@ -13,8 +13,6 @@ from colorama import init
 init()
 
 
-
-
 def printMessage(n_thread,message):
     lock.acquire()
     down(n_thread)
@@ -120,7 +118,7 @@ if __name__ == '__main__':
     tasks = []
     l = Lock()
     K_s = 0.04
-    K_e = 0.09
+    K_e = 2.5
     h_K = 0.001
     N,L,G = 6,0.8,0.97
     K_arr = np.arange(K_s,K_e,h_K)

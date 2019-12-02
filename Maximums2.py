@@ -125,6 +125,8 @@ if __name__ == '__main__':
     N,L,G = 6,0.8,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
+    for K_i in Multi_K_arr:
+        print(K_i)
     print("FIND MAXIMUMS L - ", L)
     with Pool(processes=N_CPU,initializer=init2, initargs=(l,)) as pool:
         num_proc = 1

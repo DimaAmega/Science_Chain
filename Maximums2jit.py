@@ -113,14 +113,14 @@ def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.95):
 ###################
 
 if __name__ == '__main__':
-    N_CPU = 8 #cpu_count()
+    N_CPU = 9 #cpu_count()
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.06
-    K_e = 11
+    K_s = 0.25
+    K_e = 5.5
     h_K = 0.001
-    N,L,G = 6,0.3,0.97
+    N,L,G = 6,0.45,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
     print("FIND MAXIMUMS L - ", L)
@@ -135,5 +135,5 @@ if __name__ == '__main__':
             data+=res
         pool.close()
         pool.join()
-        with open('DataM2-{}.pickle'.format(L), 'wb') as f:
+        with open('045Lambda{}.pickle'.format(L), 'wb') as f:
             pickle.dump(data, f)

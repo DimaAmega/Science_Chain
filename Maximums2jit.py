@@ -84,7 +84,7 @@ def findMax(q,eps=1e-4):
                 res.append(p)
         i+=1
     return res
-def calcLine(N,L,G,K_arr,num_proc,t_end=3000,h=1e-3):
+def calcLine(N,L,G,K_arr,num_proc,t_end=4000,h=1e-3):
     rndm.seed(4)
     res = []
     t = np.arange(0,t_end,h)
@@ -113,13 +113,13 @@ def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.95):
 ###################
 
 if __name__ == '__main__':
-    N_CPU = 9 #cpu_count()
+    N_CPU = 2 #cpu_count()
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.25
-    K_e = 5.5
-    h_K = 0.001
+    K_s = 1
+    K_e = 1.162
+    h_K = 0.0001
     N,L,G = 6,0.45,0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
@@ -135,5 +135,5 @@ if __name__ == '__main__':
             data+=res
         pool.close()
         pool.join()
-        with open('045Lambda{}.pickle'.format(L), 'wb') as f:
+        with open('045NewLambda2.pickle', 'wb') as f:
             pickle.dump(data, f)

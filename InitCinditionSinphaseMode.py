@@ -37,8 +37,6 @@ def newtonMethod(VF,X_start):
         Y = getYacobyMatrix(VF,X)
         Y_1 = Y**-1
         X = X-(Y_1*VF(X))
-        print("point",X)
-        print("Touch",mp.norm(Y_1*VF(X),2))
     return X
 def createVectorFunction(f1,f2):
 	return lambda Xi : mp.matrix([f1(Xi),f2(Xi)])

@@ -14,6 +14,7 @@ def createQ0(N,i):
     return res
 def createRsideOnePendulumsEquationMPMATH(L,G):
     return lambda t,q: [ q[1] , G-mp.sin(q[0]) -L*q[1] ] 
+    
 def RSlinear(q,t,N,L,K,phi_s_mpf):
     phi_s = float(phi_s_mpf(t))
     X = np.zeros(2*N)
@@ -45,7 +46,7 @@ def getMultiplicators(phi_s,t_end,L,K,G,N):
 ##  MAIN
 ######################
 if __name__ == "__main__":
-    L = 0.94 #1.01633
+    L = 0.91 #1.01633
     K = 0.755
     G = 0.97
     N = 6

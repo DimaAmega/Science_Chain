@@ -17,10 +17,10 @@ def printMessage(n_thread,message):
     up(n_thread)
     lock.release()
 
-def calculateLineData(L,G,N,n_thread):
+def calculateLineData(t_period,y_point,L,G,N,n_thread):
     DATA = []
     Count_iterations = 0
-    N_iterations = 3
+    N_iterations = 1
     ######################
     ##      ОЦЕНКИ
     ######################
@@ -41,10 +41,7 @@ def calculateLineData(L,G,N,n_thread):
     ######################
     ##      СЧЁТ
     ######################
-    X = IC(L,G)
-
-    phi_s = createPhi_s(X,L,G)
-    t_period =float(X[1])
+    phi_s = createPhi_s(y_point,L,G)
     k_i = K_start
     Prev = inCircle(getMul(phi_s,t_period,L,k_i,G,N))
     Netx = Prev
@@ -80,28 +77,35 @@ def calculateLineData(L,G,N,n_thread):
 ###
 #######################################
 
-def init(l):
+def initMultiprocessing(l):
     global lock
     lock = l
 
 if __name__ == '__main__':
     # N_CPU = mpproc.cpu_count()
-    N_CPU = 1
+    N_CPU = 2
     data = []
     tasks = []
     l = Lock()
+    num_proc = 1
+    G = 0.97
+    N = 6
+    L_s = 0.91
+    L_e = 0.97
+    h_L = 0.005
+    L_arr = np.arange(L_s,L_e,h_L)
+    # print("CHECKING")
+    # X = IC(getApproxX0(L_s,G),L_s,G)
+    # for L_i in L_arr:
+    #     X = IC(X,L_i,G)
+    #     print("L -",L_i,"\n Point \n",X)
     print("START PROCESSES")
-    with Pool(processes=N_CPU,initializer=init, initargs=(l,)) as pool:
-        num_proc = 1
-        G = 0.97
-        N = 6
-        L_s = 0.93
-        L_e = 0.85   
-        h_L = -0.01
-
-        L_arr = np.arange(L_s,L_e,h_L)
+    with Pool(processes=N_CPU,initializer=initMultiprocessing, initargs=(l,)) as pool:
+        X = IC(getApproxX0(L_s,G),L_s,G)
         for L_i in L_arr:
-            tasks.append(pool.apply_async(calculateLineData,args = (L_i,G,N,num_proc),error_callback = lambda e: print(e)))
+            X = IC(X,L_i,G)
+            t_p,y_point = parseX(X)
+            tasks.append(pool.apply_async(calculateLineData,args = (t_p,y_point,L_i,G,N,num_proc),error_callback = lambda e: print("ERRROR!",e)))
             num_proc+=1
         for task in tasks:
             task.wait()

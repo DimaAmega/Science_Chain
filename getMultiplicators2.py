@@ -45,16 +45,6 @@ def getMultiplicators(phi_s,t_end,L,K,G,N):
 ######################
 ##  MAIN
 ######################
-if __name__ == "__main__":
-    L = 0.91 #1.01633
-    K = 0.755
-    G = 0.97
-    N = 6
-    X = IC(L,G)
-    print("сошёлся",X)
-    phi_s = createPhi_s(X,L,G)
-    res  = getMultiplicators(phi_s,float(X[1]),L,K,G,N)
-    print(res)
 
 
   

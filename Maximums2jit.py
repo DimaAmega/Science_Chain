@@ -113,16 +113,6 @@ def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.95):
 ###################
 
 if __name__ == '__main__':
-<<<<<<< HEAD
-    N_CPU = 2 #cpu_count()
-    data = []
-    tasks = []
-    l = Lock()
-    K_s = 1
-    K_e = 1.162
-    h_K = 0.0001
-    N,L,G = 6,0.45,0.97
-=======
     N_CPU = 8 #cpu_count()
     data = []
     tasks = []
@@ -133,7 +123,6 @@ if __name__ == '__main__':
     N = 6
     L = 0.55
     G = 0.97
->>>>>>> origin/master
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
     print("FIND MAXIMUMS L - ", L)
@@ -148,9 +137,5 @@ if __name__ == '__main__':
             data+=res
         pool.close()
         pool.join()
-<<<<<<< HEAD
         with open('045NewLambda2.pickle', 'wb') as f:
-=======
-        with open('055Lambda.pickle', 'wb') as f:
->>>>>>> origin/master
             pickle.dump(data, f)

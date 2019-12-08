@@ -1,9 +1,16 @@
 from InitCinditionSinphaseMode  import getInitCondition as IC
+from InitCinditionSinphaseMode  import getApproximateX0 as getApproxX0
+
 from getMultiplicators2 import getMultiplicators as getMul
 import numpy as np
 import math as mt
 import sys
 import mpmath as mp
+def parseX(X):
+    x_new = np.array(X.tolist(),dtype=np.float64)
+    y_point = x_new[0][0]
+    t_p = x_new[1][0]
+    return (t_p,y_point)
 
 
 def up(n=1):
@@ -21,9 +28,9 @@ def inCircle(eig_s): # Смотрим переход через -1
         if np.linalg.norm(e_i)>1 and e_i.real < 0:
             return -1
     return 1
-def createPhi_s(X,L,G):
+def createPhi_s(y_point,L,G):
         rside = createRsideOnePendulumsEquationMPMATH(L,G)
-        q = mp.odefun(rside,0,mp.matrix([0,X[0]]),tol=0.001,degree=4,method="taylor")
+        q = mp.odefun(rside,0,mp.matrix([0,y_point]),tol=0.001,degree=4,method="taylor")
         return lambda t:q(t)[0]
 def createRsideOnePendulumsEquationMPMATH(L,G):
     return lambda t,q: [ q[1] , G-mp.sin(q[0]) -L*q[1] ] 

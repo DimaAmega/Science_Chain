@@ -14,6 +14,7 @@ t_end = 500
 h_iter = 0.001
 deg = 4
 t = np.arange(0,t_end,h_iter)
+eps = 1e-14
 #####################
 ##    FUNCTIONS
 #####################
@@ -61,6 +62,9 @@ def findFirstMaximum(q,RS,start_index):
             prev_sign = next_sign
             next_sign = secDer(q[i])
             i+=1
+####################################
+## IMPORT FUNCTION
+####################################
 def getApproximateX0(L,G):
     RS = createRsideOnePendulumsEquation(L,G)
     q = odeint(RS,[0,6],t,hmax=h_iter)
@@ -69,11 +73,7 @@ def getApproximateX0(L,G):
     period_time = (ind_second_max - ind_first_max)*h_iter
     maximum = (q_2[1] + q_1[1])/2
     return mp.matrix([maximum,period_time])
-eps = 1e-14
-####################################
-## IMPORT FUNCTION
-####################################
-def getInitCondition(L,G):
+def getInitCondition(X0_approx,L,G):
     def f1(Xi): # производная по фи 
         q0 = [0,Xi[0]]  # phase and speed
         rside = createRsideOnePendulumsEquationMPMATH(L,G)
@@ -84,8 +84,6 @@ def getInitCondition(L,G):
         rside = createRsideOnePendulumsEquationMPMATH(L,G)
         q = mp.odefun(rside,0,q0,tol=h_iter,degree=deg,method="taylor")
         return q(Xi[1])[1] -Xi[0]
-    X0_approx = getApproximateX0(L,G)
-    print(X0_approx)
     VF = createVectorFunction(f1,f2)
     X = newtonMethod(VF,X0_approx)
     return X

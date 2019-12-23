@@ -1,4 +1,3 @@
-
 from scipy.integrate import odeint
 import numpy as np
 from multiprocessing import cpu_count
@@ -41,6 +40,15 @@ def init2(l):
     global lock
     lock = l
 
+
+def scipTransitionProcess(N,L,G,K_i,q0,t_end,h):
+    t = np.arange(0,t_end,h)
+    q = odeint(CreateRS,q0,t,args=(N,L,G,K_i),hmax=h)
+    q_last = q[-1]
+    for i in range(N):
+        q_last[2*i] = q_last[2*i]%2*mt.pi
+    return q_last
+
 @jit
 def CreateRS(q,t,N,L,G,K):
     X = np.zeros(2*N)
@@ -54,75 +62,90 @@ def CreateRS(q,t,N,L,G,K):
     X[2*N-2] = q[2*N-1]
     X[2*N-1] = -L*q[2*N-1] - mt.sin(q[2*N-2]) + G + K*( mt.sin(q[2*N-4] - q[2*N-2]) )
     return X
+
 def createQ0(N):
     q0 = np.zeros(2*N)
     for i in range(2*N):
         q0[i] = 10 + 3*rndm.random()
     return q0
-def createPretubrations(N):
-    q0 = np.zeros(2*N)
-    for i in range(2*N):
-        q0[i] = 0.1 + 0.2*rndm.random()
-    return q0
-def findMax(q,eps=1e-4):
+
+# def createVectorFunction(N,L,G,K):
+#     return lambda Xi: CreateRS(Xi,0,N,L,G,K)
+
+
+def calcLine(N,L,G,K_arr,num_proc,t_end=800,h=1e-3):
     res = []
-    start = q[0]
-    i = 1
-    N = len(q)
-    while i < N-1:
-        if q[i] > q[i-1] and q[i] > q[i+1]:
-            p = q[i]
-            flag = 0
-            for r_i in res:
-                if mt.fabs(p - r_i)<eps:
-                    flag = 1
-                    break
-            if flag == 0:
-                res.append(p)
-        i+=1
-    return res
-def calcLine(N,L,G,K_arr,num_proc,t_end=4000,h=1e-3):
-    rndm.seed(4)
-    res = []
-    t = np.arange(0,t_end,h)
-    q = odeint(CreateRS,createQ0(N),t,args=(N,L,G,K_arr[0]),hmax=h)
-    q_last = q[-1]
+    q0 = createQ0(N)
     for K_i in K_arr:
-        res.append(CountMaximums(N,L,G,K_i,q_last + createPretubrations(N),t,h))
-        q_last = res[-1]["q0"]
-        ####  PRINT SOME INFO  ####
-        printMessage(num_proc,"Progress of {} Thread {} of 100".format(num_proc,round((K_i-K_arr[0])/(K_arr[-1] -K_arr[0])*100,2)))
+        q0 = scipTransitionProcess(N,L,G,K_i,q0,t_end,h)
+        printMessage(num_proc,"Progress of {} Thread, Progress {}|100 Calculuse Exp".format(num_proc,round((K_i-K_arr[0])/(K_arr[-1] -K_arr[0])*100,2)))
+        l_exp_data = getLapExp(N,L,G,K_i,q0)
+        res.append(l_exp_data)
+        printMessage(num_proc,"Progress of {} Thread, Lexp = {}, {} of 100".format(num_proc,str(res[-1]),round((K_i-K_arr[0])/(K_arr[-1] -K_arr[0])*100,2)))
     return res
 
 
-def CountMaximums(N,L,G,K_i,q_0,t,h,proc=0.95):
-    res = []
-    s_t_index = int(round((t[-1]+h)*proc/h))
-    q = odeint(CreateRS, q_0,t,args=(N,L,G,K_i),hmax=h)
+@jit
+def getYacobyMatrix(VF,X,n,L,G,K):
+    h = 0.001
+    N = len(X)
+    res = np.zeros((N,N))
     for i in range(N):
-        res.append(findMax(q[s_t_index:-1][:,2*i+1]))
-    q0 = q[-1].copy()
-    for i in range(N):
-        q0[2*i] = q0[2*i]%2*mt.pi
-    return {"K":K_i,"max":res,"q0":q0}
+        X_1 = X.copy()
+        X_2 = X.copy()
+        X_1[i]-=h
+        X_2[i]+=h
+        der = (VF(X_2,0,n,L,G,K) - VF(X_1,0,n,L,G,K))/(2*h)
+        res[:,i] = der
+    return res
+
+@jit
+def RSLapunovExp(q,t,N,L,G,K,VF,t_pretubr):
+    res = np.empty((4*N))
+    linear = getYacobyMatrix(VF,q[:2*N],N,L,G,K).dot(q[2*N:])
+    if mt.fabs(t - t_pretubr) < 0.5*1e-3:
+        linear = 200*np.full(2*N,1/mt.sqrt(2*N))
+    RS = VF(q[:2*N],0,N,L,G,K)
+    for i in range(2*N):
+        res[i] = RS[i]
+    for i in range(2*N):
+        res[i+2*N] = linear[i]
+    return res
+
+
+def getLapExp(N,L,G,K_i,X0,t_end=5000,t_empty = 2000,h_iter=1e-3):
+    t = np.arange(0,t_end + t_empty,h_iter)
+    q0 = np.concatenate([X0,np.full(2*N,0)])
+    sol = odeint(RSLapunovExp,q0,t,args=(N,L,G,K_i,CreateRS,t_empty),hmax=h_iter)
+    return {"Lexp":mt.log(np.linalg.norm(sol[-1][2*N:])/np.linalg.norm(sol[round(1000*t_empty)][2*N:]))/(t_end),"Ki":K_i}
+
 ###################
 ##     MAIN
 ###################
+# K_i = 1.5 #1.5 -reg #0.73 - ch 
+# N = 6
+# L = 0.8
+# G = 0.97
+# h = 1e-3
+# X0 = scipTransitionProcess(N,L,G,K_i,createQ0(N),100,h)
+# res = getLapExp(N,L,G,K_i,X0)
+# print(res)
 
 if __name__ == '__main__':
-    N_CPU = 8 #cpu_count()
+    rndm.seed(2)
+    N_CPU = 3 #cpu_count()
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.135
-    K_e = 4.15
-    h_K = 0.001
+    K_s = 0.8
+    K_e = 0.84
+    h_K = 0.002
     N = 6
     L = 0.55
     G = 0.97
     K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
-    print("FIND MAXIMUMS L - ", L)
+    # print("Calk LapunovEXP, L - ", L)
     with Pool(processes=N_CPU,initializer=init2, initargs=(l,)) as pool:
         num_proc = 1
         for K_i_arr in Multi_K_arr:
@@ -134,5 +157,5 @@ if __name__ == '__main__':
             data+=res
         pool.close()
         pool.join()
-        with open('045NewLambda2.pickle', 'wb') as f:
+        with open('Lapunov055.pickle', 'wb') as f:
             pickle.dump(data, f)

@@ -83,7 +83,7 @@ def initMultiprocessing(l):
 
 if __name__ == '__main__':
     # N_CPU = mpproc.cpu_count()
-    N_CPU = 2
+    N_CPU = 4
     data = []
     tasks = []
     l = Lock()

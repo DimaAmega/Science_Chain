@@ -10,6 +10,8 @@ import math as mt
 import random as rndm
 from multiprocessing import Pool
 from colorama import init
+sys.path.append("../LapunoVOPT/")
+from LapunovOPTJIT import getLapExp,RSLapunovExp
 init()
 
 def printMessage(n_thread,message):
@@ -47,7 +49,7 @@ def init2(l):
 
 @njit
 def CreateRS(q,t,N,L,G,K):
-    X = np.zeros(2*N)
+    X = np.empty(2*N)
     X[0] = q[1]
     X[1] = -L*q[1] - mt.sin(q[0]) + G + K*( mt.sin(q[2] - q[0]) ) 
     n = 0
@@ -163,20 +165,22 @@ def getProgress(K_i,K_s,K_e):
     return round((K_i-K_s)/(K_e -K_s)*100,2)
 
 def calcLine(N,L,G,K_arr,num_proc,t_scip=2000,h=0.015,Count_Max=10):
-    scip_iterations_to_Print = 5
+    scip_iterations_to_Print = 1
     iterations = 0
     rndm.seed(2)
     res = []
     _ , X_last = findMax(CreateRS,h,createQ0(N),4*t_scip,(N,L,G,K_arr[0]),Count_Max)
 
     for K_i in K_arr:
-        max_arr, X_last = findMax(CreateRS,h,modXPhase2Pi(X_last) + createPretubrations(N),t_scip,(N,L,G,K_i),Count_Max)
+        args = (N,L,G,K_i)
+        max_arr, X_last = findMax(CreateRS,h,modXPhase2Pi(X_last) + createPretubrations(N),t_scip,args,Count_Max)
         state_str = getState(modXPhase2Pi(X_last))
-        res.append({"K":K_i,"max":tidyUpAllArs(max_arr),"state": state_str})
+        Lexp = getLapExp(CreateRS,RSLapunovExp,modXPhase2Pi(X_last),args,t_scip = 1000,t_calc = 4000,h=0.015)
+        res.append({"K":K_i,"max":tidyUpAllArs(max_arr),"state": state_str,"Lexp":Lexp,"X_last":modXPhase2Pi(X_last)})
         iterations+=1
         ####  PRINT SOME INFO  ####
         if iterations % scip_iterations_to_Print == 0:
-            printMessage(num_proc,"{} Thread {} of 100, ki {}, state {}".format(num_proc,getProgress(K_i,K_arr[0],K_arr[-1]),round(K_i,3),state_str))
+            printMessage(num_proc,"{} Thread {} of 100, ki {}, state {}, Lexp {}".format(num_proc,getProgress(K_i,K_arr[0],K_arr[-1]),round(K_i,3),state_str,round(Lexp,4)))
     return res
 
 def getState(X_last):
@@ -210,21 +214,19 @@ def getState(X_last):
 ###################
 
 
-
-
 if __name__ == '__main__':
     N_CPU = 1 # cpu_count()
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.5 #0.135 0.853
-    K_e = 1.45 #4.15 0.628
+    K_s = 0.005 #0.135 0.853
+    K_e = 2.5 #4.15 0.628
     h_K = 1e-3
     N = 6
-    L = 0.3
+    L = 0.8
     G = 0.97
-    K_arr = np.arange(K_e - h_K ,K_s - h_K/2,-h_K)
-    # K_arr = np.arange(K_s,K_e,h_K)
+    # K_arr = np.arange(K_e - h_K ,K_s - h_K/2,-h_K)
+    K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
     print("FIND MAXIMUMS L - ", L)
     with Pool(processes=N_CPU,initializer=init2, initargs=(l,)) as pool:
@@ -238,5 +240,5 @@ if __name__ == '__main__':
             data+=res
         pool.close()
         pool.join()
-        with open('test.pickle', 'wb') as f:
+        with open('08Ahead.pickle', 'wb') as f:
             pickle.dump(data,f)

@@ -12,7 +12,6 @@ def parseX(X):
     t_p = x_new[1][0]
     return (t_p,y_point)
 
-
 def up(n=1):
     # My terminal breaks if we don't flush after the escape-code
     for i in range(n):

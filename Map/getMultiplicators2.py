@@ -17,7 +17,7 @@ def createRsideOnePendulumsEquationMPMATH(L,G):
     
 def RSlinear(q,t,N,L,K,phi_s_mpf):
     phi_s = float(phi_s_mpf(t))
-    X = np.zeros(2*N)
+    X = np.empty(2*N)
     X[0] = q[1]
     n = 0
     X[1] = -L*q[1] - mt.cos(phi_s)*q[0] + K*(q[2] - q[0] ) 

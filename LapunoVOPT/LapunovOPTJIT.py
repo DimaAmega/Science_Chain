@@ -68,7 +68,7 @@ def getYacobyMatrixExplicit(X,N,L,G,K):
 
 @njit
 def CreateRS(q,t,N,L,G,K):
-    X = np.zeros(2*N)
+    X = np.empty(2*N)
     X[0] = q[1]
     X[1] = -L*q[1] - mt.sin(q[0]) + G + K*( mt.sin(q[2] - q[0]) ) 
     n = 0
@@ -139,7 +139,6 @@ def getLapExp(RS,RSLapExp,q0,args,t_scip = 4000,t_calc = 4000,h=0.015):
 
     return mt.log(np.linalg.norm(X[2*N:]))/(t_calc)
 
-
 ###################
 ##     MAIN
 ###################
@@ -160,7 +159,7 @@ if __name__ == '__main__':
     with Pool(processes=N_CPU,initializer=init2, initargs=(l,)) as pool:
         num_proc = 1
         for K_i_arr in Multi_K_arr:
-            tasks.append(pool.apply_async(  ,args = (N,L,G,K_i_arr,num_proc),error_callback = lambda e: print(e)))
+            tasks.append(pool.apply_async(calcLine,args = (N,L,G,K_i_arr,num_proc),error_callback = lambda e: print(e)))
             num_proc+=1
         for task in tasks:
             task.wait()

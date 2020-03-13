@@ -30,6 +30,7 @@ def getYacobyMatrix(VF,X):
         der = (VF(X_2) - VF(X_1))/(2*h)
         res[:,i] = der
     return res
+     
 def newtonMethod(VF,X_start):
     X = X_start
     Y = getYacobyMatrix(VF,X)

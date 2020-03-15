@@ -209,5 +209,3 @@ def SinphaseParametrSinhronization(X,args):
                 ksi_i+= mt.fabs( X[2*i] - X[2*j])
         max_ksi = max(max_ksi,ksi_i)
     return 2*max_ksi/N/(N-1)
-
-

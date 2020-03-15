@@ -15,6 +15,7 @@ L1y = []
 
 x1 = []
 y1 = []
+label1 = []
 N1 = len(data1[0]["max"])
 for i in range(N1):
     x1.append([])
@@ -25,8 +26,9 @@ for di in data1:
         for j in range(len(di["max"][i])):
             y1[i].append(di["max"][i][j])
             x1[i].append(di["K"])
-        L1x.append(di["K"])
-        L1y.append(di["Lexp"])
+    L1x.append(di["K"])
+    L1y.append(di["Lexp"])
+    label1.append(di["state"])
 with open("{}Back.pickle".format(sys.argv[1]), 'rb') as f:
     data2 = pickle.load(f)
 
@@ -36,6 +38,7 @@ L2y = []
 
 x2 = []
 y2 = []
+label2 = []
 N2 = len(data2[0]["max"])
 for i in range(N2):
     x2.append([])
@@ -46,8 +49,9 @@ for di in data2:
         for j in range(len(di["max"][i])):
             y2[i].append(di["max"][i][j])
             x2[i].append(di["K"])
-        L2x.append(di["K"])
-        L2y.append(di["Lexp"])
+    L2x.append(di["K"])
+    L2y.append(di["Lexp"])
+    label2.append(di["state"])
 
 
 axis_style = dict(nticks=5,ticks="inside",tickwidth=7,ticklen=15,tickcolor="#000",showgrid=False,
@@ -86,6 +90,7 @@ fig.add_trace(go.Scatter(
 	marker=dict(
         size=1),
     name = 'Lexp',
+    text = label1,
     ),row=2,col=1)
 
 
@@ -106,6 +111,7 @@ fig.add_trace(go.Scatter(
 	marker=dict(
         size=1),
     name = 'Lexp',
+    text = label2,
     ),row=4,col=1)
 
 fig.show()

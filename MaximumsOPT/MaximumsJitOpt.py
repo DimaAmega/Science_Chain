@@ -219,14 +219,14 @@ if __name__ == '__main__':
     data = []
     tasks = []
     l = Lock()
-    K_s = 0.005 #0.135 0.853
-    K_e = 2.5 #4.15 0.628
+    K_s = 0.04 #0.135 0.853
+    K_e = 3.3 #4.15 0.628
     h_K = 1e-3
     N = 6
-    L = 0.8
+    L = 0.7
     G = 0.97
-    # K_arr = np.arange(K_e - h_K ,K_s - h_K/2,-h_K)
-    K_arr = np.arange(K_s,K_e,h_K)
+    K_arr = np.arange(K_e - h_K ,K_s - h_K/2,-h_K)
+    # K_arr = np.arange(K_s,K_e,h_K)
     Multi_K_arr = chunkIt(K_arr,N_CPU)
     print("FIND MAXIMUMS L - ", L)
     with Pool(processes=N_CPU,initializer=init2, initargs=(l,)) as pool:
@@ -240,5 +240,5 @@ if __name__ == '__main__':
             data+=res
         pool.close()
         pool.join()
-        with open('08Ahead.pickle', 'wb') as f:
+        with open('07Back.pickle', 'wb') as f:
             pickle.dump(data,f)
